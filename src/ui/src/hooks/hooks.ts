@@ -1,0 +1,79 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect, useRef, Dispatch } from 'react'
+
+export type APIPollingOptions<DataType> = {
+    fetchFunc: () => Promise<DataType>
+    initialState: DataType
+    delay: number,
+    onSuccess: (data: DataType) => void
+    onError?: (e: Error, setData?: Dispatch<any>) => void
+    updateTrigger?: any
+}
+
+function usePolling<DataType>(opts: APIPollingOptions<DataType>): DataType {
+    const { initialState, fetchFunc, delay, onError, updateTrigger, onSuccess } = opts
+
+    const timerId = useRef<any>()
+    const fetchCallId = useRef(0)
+    const [data, setData] = useState(initialState)
+
+    const fetchData = (id: Number) => {
+        return new Promise(resolve => {
+            fetchFunc()
+                .then(newData => {
+                    if (id === fetchCallId.current) {
+                        setData(newData);
+                        onSuccess(newData);
+                    }
+
+                    resolve()
+                })
+                .catch(e => {
+                    if (!onError) {
+                        setData(initialState)
+                        resolve()
+                    } else {
+                        onError(e, setData)
+                        resolve()
+                    }
+                })
+        })
+    }
+
+    const pollingRoutine = () => {
+        fetchCallId.current += 1
+        /* tslint:disable no-floating-promises */
+        fetchData(fetchCallId.current).then(() => {
+            doPolling()
+        })
+        /* tslint:enable no-floating-promises */
+    }
+
+    const doPolling = () => {
+        timerId.current = setTimeout(() => {
+            pollingRoutine()
+        }, delay)
+    }
+
+    const stopPolling = () => {
+        if (timerId.current) {
+            clearTimeout(timerId.current)
+            timerId.current = null
+        }
+    }
+
+    useEffect(
+        () => {
+            /* tslint:disable no-floating-promises */
+            pollingRoutine()
+            /* tslint:enable */
+
+            return stopPolling
+        },
+        updateTrigger ? [updateTrigger] : []
+    )
+
+    return data
+}
+
+export default usePolling

@@ -1,0 +1,8 @@
+.vs/
+bin/
+obj/
+*.db
+*.db-shm
+*.db-wal
+logs/
+src/api/Imageboard.Api/attachments/
