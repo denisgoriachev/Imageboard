@@ -82,21 +82,6 @@ export const AddPostForm: React.FC<AddPostFormProps> = (props) => {
                                             error={(errors.text != null && (touched.text ?? false))}
                                             errors={errors.text}
                                         />
-                                        {/* <TextField
-                                            variant="outlined"
-                                            fullWidth
-                                            required
-                                            error={(errors.text != null && (touched.text ?? false))}
-                                            label="Text"
-                                            name="text"
-                                            value={values.text}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            helperText={errors.text}
-                                            multiline
-                                            rows={6}
-                                            placeholder="Enter topic text..."
-                                        /> */}
                                     </Grid>
                                     <Grid item xs={12} sm={8} md={4} lg={3} xl={3}>
                                         <TextField
